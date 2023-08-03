@@ -4,7 +4,7 @@ var udescription = document.getElementById('description');
 
 form.addEventListener("submit", saveToLocalStorage);
 
-function saveToLocalStorage(e) {
+async function saveToLocalStorage(e) {
   e.preventDefault();
   const todo = uname.value;
   const description = udescription.value;
@@ -13,34 +13,28 @@ function saveToLocalStorage(e) {
     description,
     isdone: false,
   };
-  axios
+ const res = await axios
     .post(
       "https://crudcrud.com/api/d11188ecb66f41eeaf037994aa1006ee/todoData",
       obj
     )
-    .then((response) => {
-      showTodoRemaining(response.data);
-    })
-    .catch((err) => console.log(err));
+    showTodoRemaining(res.data);
 
     uname.value = "";
     udescription.value = "";
 }
 
-window.addEventListener("DOMContentLoaded", () => {
-  axios
-    .get("https://crudcrud.com/api/d11188ecb66f41eeaf037994aa1006ee/todoData")
-    .then((response) => {
-      for (let i = 0; i < response.data.length; i++) {
-        if (response.data[i].isdone === false) {
-          showTodoRemaining(response.data[i]);
-        }
-        else{
-           showTodoDone(response.data[i]);
-        }
+window.addEventListener("DOMContentLoaded", async() => {
+   const response = await axios
+  .get("https://crudcrud.com/api/d11188ecb66f41eeaf037994aa1006ee/todoData")
+    for (let i = 0; i < response.data.length; i++) {
+      if (response.data[i].isdone === false) {
+        showTodoRemaining(response.data[i]);
       }
-    })
-    .catch((err) => console.log(err));
+      else{
+         showTodoDone(response.data[i]);
+      }
+    }
 });
 
 function showTodoRemaining(user) {
@@ -68,7 +62,7 @@ function showTodoRemaining(user) {
 // delete functionality in todos remaining
 var itemList = document.getElementById("users");
 itemList.addEventListener('click', Crossitem);
-function Crossitem(e) {
+async function Crossitem(e) {
     if(e.target.classList.contains('delete')){
        var li = e.target.parentElement;
        itemList.removeChild(li);
@@ -79,38 +73,30 @@ function Crossitem(e) {
         let todo = parentNode.getAttribute('name');
         let description = parentNode.getAttribute('description');
        // console.log(todo, description);
-        axios.put(`https://crudcrud.com/api/d11188ecb66f41eeaf037994aa1006ee/todoData/${parentId}`, {
+        const rest =  await axios.put(`https://crudcrud.com/api/d11188ecb66f41eeaf037994aa1006ee/todoData/${parentId}`, {
            todo : todo, 
            description : description,
            isdone : true
         })
-         .then((res)=>console.log(res))
-         .catch((err)=>console.log(err));
-        findDataId().then((res)=>{
-            for(let i=0; i<res.length; i++){
-               if(res[i].isdone==true){
-                var li  = e.target.parentElement;
-                 itemList.removeChild(li);
-                 showTodoDone(res[i]);
-               }
-            }
-        })
-    }
+        const res = await findDataId();
+        for(let i=0; i<res.length; i++){
+          if(res[i].isdone==true){
+           var li  = e.target.parentElement;
+            itemList.removeChild(li);
+            showTodoDone(res[i]);
+          }
+       }
+}
 }
 
 
 // function findDataId logic
-function findDataId() {
-  return axios
+async function findDataId() {
+  const res = await axios
     .get(
       "https://crudcrud.com/api/d11188ecb66f41eeaf037994aa1006ee/todoData"
     )
-    .then((res) => {
-      return res.data;
-    })
-    .catch((err) => {
-      console.log(err);
-    });
+    return res.data;
 }
 
 // edit details
